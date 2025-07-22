@@ -18,6 +18,11 @@ public class PlayerController : MonoBehaviour
     public float groundDistance = 0.4f;
     public LayerMask groundMask;
 
+    [Header("Posicion de objetos")]
+    public Transform holdPoint;
+    private GameObject heldObject;
+  
+
     private CharacterController controller;
     private Vector3 velocity;
     private bool isGrounded;
@@ -67,13 +72,31 @@ public class PlayerController : MonoBehaviour
         hitSomething = Physics.Raycast(playerCamera.position, playerCamera.forward, out lastHitInfo, 3f);
         if (hitSomething)
         {
-            if (lastHitInfo.collider.TryGetComponent<IInteractable>(out var interactable))
+            IInteractable interactable = lastHitInfo.collider.GetComponent<IInteractable>();
+            if (interactable != null)
             {
                 Debug.Log(interactable.GetDescription());
 
                 if (Input.GetKeyDown(KeyCode.E))
                 {
-                    interactable.Interact();
+                    if (heldObject == null)
+                    {
+                        interactable.Interact(); // por si quieres que haga algo más
+
+                        // recoger objeto
+                        heldObject = lastHitInfo.collider.gameObject;
+                        heldObject.GetComponent<Rigidbody>().isKinematic = true;
+                        heldObject.transform.SetParent(holdPoint);
+                        heldObject.transform.localPosition = Vector3.zero;
+                        heldObject.transform.localRotation = Quaternion.identity;
+                    }
+                    else
+                    {
+                        // soltar objeto
+                        heldObject.transform.SetParent(null);
+                        heldObject.GetComponent<Rigidbody>().isKinematic = false;
+                        heldObject = null;
+                    }
                 }
             }
         }

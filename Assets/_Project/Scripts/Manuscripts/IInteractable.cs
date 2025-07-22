@@ -1,5 +1,15 @@
 public interface IInteractable
 {
     void Interact();
-    string GetDescription(); // para mostrar el tooltip
+    string GetDescription(); 
+    InteractableType GetInteractableType();
+}
+
+public enum InteractableType
+{
+    Book,
+    Tool,
+    Key,
+    Artifact,
+    Manuscript
 }
